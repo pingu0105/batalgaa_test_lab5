@@ -1,0 +1,132 @@
+newman
+
+Lab05 Registration API
+
+Folder 1. Happy path: active student with prerequisites registers (201 OK)
+Sub-folder Setup: student S_T1
+  PUT http://localhost:3000/students/S_T1 [200 OK, 178B, 37ms]
+
+Sub-folder Setup: course C_T1
+  PUT http://localhost:3000/courses/C_T1 [200 OK, 178B, 6ms]
+
+Sub-folder Register
+  POST http://localhost:3000/registrations [201 Created, 203B, 4ms]
+  Pass  Status is 201
+  Pass  result is OK
+  Pass  registrationID is a number
+
+Folder 2. Missing student gets ERROR_NO_STUDENT
+Sub-folder Setup: course C_T2
+  PUT http://localhost:3000/courses/C_T2 [200 OK, 178B, 6ms]
+
+Sub-folder Register
+  POST http://localhost:3000/registrations [200 OK, 192B, 5ms]
+  Pass  Status is 200
+  Pass  result is ERROR_NO_STUDENT
+
+Folder 3. Inactive student gets ERROR_INACTIVE_STUDENT
+Sub-folder Setup: student S_T3
+  PUT http://localhost:3000/students/S_T3 [200 OK, 178B, 5ms]
+
+Sub-folder Setup: course C_T3
+  PUT http://localhost:3000/courses/C_T3 [200 OK, 178B, 4ms]
+
+Sub-folder Register
+  POST http://localhost:3000/registrations [200 OK, 198B, 5ms]
+  Pass  Status is 200
+  Pass  result is ERROR_INACTIVE_STUDENT
+
+Folder 4. Missing course gets ERROR_NO_COURSE
+Sub-folder Setup: student S_T4
+  PUT http://localhost:3000/students/S_T4 [200 OK, 178B, 5ms]
+
+Sub-folder Register
+  POST http://localhost:3000/registrations [200 OK, 191B, 5ms]
+  Pass  Status is 200
+  Pass  result is ERROR_NO_COURSE
+
+Folder 5. Missing prerequisite gets ERROR_PREREQUISITES
+Sub-folder Setup: student S_T5
+  PUT http://localhost:3000/students/S_T5 [200 OK, 178B, 4ms]
+
+Sub-folder Setup: course C_T5
+  PUT http://localhost:3000/courses/C_T5 [200 OK, 178B, 4ms]
+
+Sub-folder Register
+  POST http://localhost:3000/registrations [200 OK, 215B, 3ms]
+  Pass  Status is 200
+  Pass  result is ERROR_PREREQUISITES
+  Pass  missing list is correct
+
+Folder 6. Double error: no student and no course gets ERROR_NO_STUDENT
+Sub-folder Register
+  POST http://localhost:3000/registrations [200 OK, 192B, 5ms]
+  Pass  Status is 200
+  Pass  result is ERROR_NO_STUDENT
+
+Folder 7. Double error: inactive student and missing prerequisite gets ERROR_INACTIVE_STUDENT
+Sub-folder Setup: student S_T7
+  PUT http://localhost:3000/students/S_T7 [200 OK, 178B, 4ms]
+
+Sub-folder Setup: course C_T7
+  PUT http://localhost:3000/courses/C_T7 [200 OK, 178B, 4ms]
+
+Sub-folder Register
+  POST http://localhost:3000/registrations [200 OK, 198B, 4ms]
+  Pass  Status is 200
+  Pass  result is ERROR_INACTIVE_STUDENT
+
+Folder 8. Boundary: course without prerequisites and empty coursesTaken registers (201 OK)
+Sub-folder Setup: student S_T8
+  PUT http://localhost:3000/students/S_T8 [200 OK, 178B, 4ms]
+
+Sub-folder Setup: course C_T8
+  PUT http://localhost:3000/courses/C_T8 [200 OK, 178B, 4ms]
+
+Sub-folder Register
+  POST http://localhost:3000/registrations [201 Created, 203B, 4ms]
+  Pass  Status is 201
+  Pass  result is OK
+  Pass  registrationID is a number
+
+Folder 9. Boundary: missing courseID gets 400 ERROR_BAD_REQUEST
+Sub-folder Setup: student S_T9
+  PUT http://localhost:3000/students/S_T9 [200 OK, 178B, 4ms]
+
+Sub-folder Register
+  POST http://localhost:3000/registrations [400 Bad Request, 202B, 3ms]
+  Pass  Status is 400
+  Pass  result is ERROR_BAD_REQUEST
+
+Folder 10. Some prerequisites taken: only the untaken one is missing
+Sub-folder Setup: student S_T10
+  PUT http://localhost:3000/students/S_T10 [200 OK, 178B, 3ms]
+
+Sub-folder Setup: course C_T10
+  PUT http://localhost:3000/courses/C_T10 [200 OK, 178B, 3ms]
+
+Sub-folder Register
+  POST http://localhost:3000/registrations [200 OK, 215B, 4ms]
+  Pass  Status is 200
+  Pass  result is ERROR_PREREQUISITES
+  Pass  missing list is correct
+
+---------------------------------------------------------------
+|                         |        executed |          failed |
+--------------------------+-----------------+------------------
+|              iterations |               1 |               0 |
+--------------------------+-----------------+------------------
+|                requests |              25 |               0 |
+--------------------------+-----------------+------------------
+|            test-scripts |              10 |               0 |
+--------------------------+-----------------+------------------
+|      prerequest-scripts |               0 |               0 |
+--------------------------+-----------------+------------------
+|              assertions |              24 |               0 |
+---------------------------------------------------------------
+| total run duration: 1911ms                                  |
+---------------------------------------------------------------
+| total data received: 585B (approx)                          |
+---------------------------------------------------------------
+| average response time: 5ms [min: 3ms, max: 37ms, s.d.: 6ms] |
+---------------------------------------------------------------
