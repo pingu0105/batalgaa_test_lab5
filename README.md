@@ -1,17 +1,11 @@
-# Lab 05: API system test with Postman and Newman
+# Lab 05: API system test
 
-- Name: <YOUR NAME>
-- Student ID: <YOUR ID>
-- `node -v`: <paste output>
-- `newman -v`: <paste output>
+- Name: <Ts. Todbileg>
+- Student ID: <B232270045>
+- `node -v`: <v24.11.1>
+- `newman -v`: <6.2.2>
 
-## Function under test
-
-`POST /registrations` with body `{"studentID", "courseID"}`. It registers a student in a course or returns an error.
-
-## Test design
-
-### Choices and equivalence classes
+# Choices and equivalence classes
 
 | Choice | Class | Representative value |
 |---|---|---|
@@ -27,13 +21,8 @@
 | | some taken | `["CS201","CS202"]`, student has `["CS201"]` |
 | | none required (boundary) | `[]` |
 
-### Impossible or irrelevant combinations
 
-- Student missing: "courses taken" has no meaning, because there is no student record.
-- Course missing: "prerequisites" has no meaning, because there is no course record.
-- Inactive student: the prerequisite check is never reached, so it cannot be observed on its own.
-
-### Specifications
+# Specifications
 
 | # | Test | Setup | Expected status | Expected result |
 |---|---|---|---|---|
@@ -48,4 +37,4 @@
 | 9 | Boundary: courseID field missing | body `{"studentID":"X"}` | 400 | ERROR_BAD_REQUEST |
 | 10 | Some prerequisites taken | course requires CS201+CS202, student has CS201 | 200 | ERROR_PREREQUISITES, missing `["CS202"]` |
 
-Rows 6 and 7 settle which error is reported first when several apply. The expected order is student, then active status, then course, then prerequisites. The tests confirm it.
+
