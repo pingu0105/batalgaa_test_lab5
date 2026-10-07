@@ -1,40 +1,70 @@
-# Lab 05: API system test
+# Лаборатори №5: API систем тест — Postman ба Newman
 
-- Name: <Ts. Todbileg>
-- Student ID: <B232270045>
-- `node -v`: <v24.11.1>
-- `newman -v`: <6.2.2>
+- Нэр: Ts. Todbileg
+- Оюутны код: B232270045
 
-# Choices and equivalence classes
+```
+$ node -v
+v24.11.1
+$ newman -v
+6.2.2
+```
 
-| Choice | Class | Representative value |
+## Бие даан тестлэгдэх функц
+
+`POST /registrations` — Хичээлд бүртгүүлэх. `studentID`, `courseID` авч, бүртгэнэ эсвэл `ERROR_*` үр дүн буцаана.
+
+## Сонголтууд ба төлөөлөх утгууд
+
+| Сонголт | Анги | Төлөөлөх утга |
 |---|---|---|
-| studentID validity | active | student with status `active` |
-| | inactive | student with status `inactive` |
-| | missing | student never created |
-| Courses taken by student | satisfy prerequisites | `["CS201"]` |
-| | do not satisfy | `[]` |
-| courseID validity | exists | course created via PUT |
-| | missing | course never created |
-| Course prerequisites | all taken | `["CS201"]`, student has `["CS201"]` |
-| | none taken | `["CS201","CS202"]`, student has `[]` |
-| | some taken | `["CS201","CS202"]`, student has `["CS201"]` |
-| | none required (boundary) | `[]` |
+| studentID-гийн хүчинтэй байдал | идэвхтэй | status `active` |
+| | идэвхгүй | status `inactive` |
+| | байхгүй | хэзээ ч үүсгээгүй |
+| Оюутны үзсэн хичээлүүд | урьдач хангана | `["CS201"]` |
+| | хангахгүй | `[]` |
+| courseID-гийн хүчинтэй байдал | байгаа | PUT-аар үүсгэсэн |
+| | байхгүй | хэзээ ч үүсгээгүй |
+| Хичээлийн урьдач нөхцөл | бүгд үзсэн | урьдач `["CS201"]`, оюутан `["CS201"]` |
+| | огт үзээгүй | урьдач `["CS201","CS202"]`, оюутан `[]` |
+| | зарим нь | урьдач `["CS201","CS202"]`, оюутан `["CS201"]` |
+| | урьдач нөхцөлгүй (хязгаарын тохиолдол) | `[]` |
 
+Боломжгүй хослол: оюутан байхгүй бол "оюутны үзсэн хичээлүүд" утгагүй, хичээл байхгүй бол "урьдач нөхцөл" утгагүй.
 
-# Specifications
+## Спецификациуд
 
-| # | Test | Setup | Expected status | Expected result |
+| # | Спецификаци | Setup | Хүлээгдэх статус код | Хүлээгдэх result |
 |---|---|---|---|---|
-| 1 | Happy path | active student with CS201, course requires CS201 | 201 | OK |
-| 2 | Missing student | course exists, student not created | 200 | ERROR_NO_STUDENT |
-| 3 | Inactive student | student status `inactive` | 200 | ERROR_INACTIVE_STUDENT |
-| 4 | Missing course | student exists, course not created | 200 | ERROR_NO_COURSE |
-| 5 | Prerequisite missing | student `[]`, course requires CS201 | 200 | ERROR_PREREQUISITES, missing `["CS201"]` |
-| 6 | Double error: no student and no course | nothing created | 200 | ERROR_NO_STUDENT |
-| 7 | Double error: inactive student and missing prerequisite | inactive, `[]`, course requires CS201 | 200 | ERROR_INACTIVE_STUDENT |
-| 8 | Boundary: course has no prerequisites | student `[]`, course `[]` | 201 | OK |
-| 9 | Boundary: courseID field missing | body `{"studentID":"X"}` | 400 | ERROR_BAD_REQUEST |
-| 10 | Some prerequisites taken | course requires CS201+CS202, student has CS201 | 200 | ERROR_PREREQUISITES, missing `["CS202"]` |
+| 1 | Амжилттай бүртгэл (happy path) | идэвхтэй оюутан CS201 үзсэн, хичээл CS201 шаардана | 201 | OK |
+| 2 | Оюутан байхгүй (ERROR_NO_STUDENT) | хичээл бий, оюутан үүсгээгүй | 200 | ERROR_NO_STUDENT |
+| 3 | Оюутан идэвхгүй (ERROR_INACTIVE_STUDENT) | status `inactive` | 200 | ERROR_INACTIVE_STUDENT |
+| 4 | Хичээл байхгүй (ERROR_NO_COURSE) | оюутан бий, хичээл үүсгээгүй | 200 | ERROR_NO_COURSE |
+| 5 | Урьдач нөхцөл дутуу (ERROR_PREREQUISITES) | оюутан `[]`, хичээл CS201 шаардана | 200 | ERROR_PREREQUISITES, missing `["CS201"]` |
+| 6 | Давхар алдааны хослол: оюутан ч, хичээл ч байхгүй | юу ч үүсгээгүй | 200 | ERROR_NO_STUDENT |
+| 7 | Давхар алдааны хослол: идэвхгүй оюутан + урьдач дутуу | inactive, `[]`, хичээл CS201 шаардана | 200 | ERROR_INACTIVE_STUDENT |
+| 8 | Хязгаарын тохиолдол: урьдач нөхцөлгүй хичээл, хоосон coursesTaken | оюутан `[]`, хичээл `[]` | 201 | OK |
+| 9 | Хязгаарын тохиолдол: courseID талбар дутуу (ERROR_BAD_REQUEST) | body `{"studentID":"S_T9"}` | 400 | ERROR_BAD_REQUEST |
+| 10 | Урьдач нөхцөлийн зарим нь хангагдсан | хичээл CS201+CS202, оюутан CS201 | 200 | ERROR_PREREQUISITES, missing `["CS202"]` |
 
+Давхар алдааны хослолууд (6, 7) нь шалгалтын дарааллыг тогтоосон: оюутан → идэвхтэй эсэх → хичээл → урьдач гэдгийг баталсан.
 
+## Collection
+
+`lab05-collection.json` нь 10 бие даасан тесттэй (test independence). Тест бүр өөрийн setup-аа өөрөө хийнэ: оюутан, хичээлийг PUT-аар үүсгэнэ (`S_T3`, `C_T3` гэх мэт ялгаатай ID), дараа нь нэг POST хийж статус ба утгыг хоёр oracle-оор шалгана. `registrationID`-ийн яг утгыг шалгаагүй, зөвхөн тоо байгаа эсэхийг шалгасан. `baseUrl` нь collection variable.
+
+## Newman-ийн үр дүн (Даалгавар 4)
+
+| Ажиллуулалт | Файл | Exit code | Assertions executed | Assertions failed |
+|---|---|---|---|---|
+| PASS (сервер ажиллаж байхад) | `results/newman-pass.txt` | 0 | 24 | 0 |
+| FAIL (`lab05-collection-fail.json`, 1-р тест 201-ийн оронд 200 хүлээнэ) | `results/newman-fail.txt` | 1 | 24 | 1 |
+| DOWN (сервер унтраасан) | `results/newman-down.txt` | 1 | 24 | 24 |
+
+README-д бичсэн assertions executed тоо (24) нь `results/newman-pass.txt`-ийн тоотой таарна.
+
+Интерфейсийн алдаа ба oracle-ийн алдааны ялгаа: FAIL үед сервер хариулсан ч хариу нь (зориуд буруу болгосон) oracle-той таарахгүй байна — энэ бол oracle-ийн алдаа. DOWN үед гаралтад `ECONNREFUSED` байна: холболт тогтоогдоогүй тул шалгах хариу огт байхгүй — энэ бол интерфейсийн алдаа, oracle-ийн алдаа биш.
+
+## Дүгнэлт
+
+Дизайны 5 алхмаас сонголт болон төлөөлөх утгыг сонгох нь хамгийн их бодол шаардсан, учир нь дараагийн алхмууд бүгд үүнээс хамаарна. Зарим хослол боломжгүй байсан: оюутан байхгүй үед түүний үзсэн хичээл, хичээл байхгүй үед урьдач нөхцөл ямар ч утга өгөхгүй. Заавар нэг дор хэд хэдэн алдаа таарвал аль нь буцахыг заагаагүй тул давхар алдааны тест (6, 7) бичиж, сервер оюутан, идэвхтэй эсэх, хичээл, урьдач гэсэн дарааллаар шалгадгийг тогтоосон. Спецификацийн 10 тест бүгд тэнцсэн (24/24 assertion). Гэхдээ `server.js`-ийг гараар шалгахад спецификацаас гадуурх жинхэнэ согог олдсон: нэг оюутныг нэг хичээлд хоёр удаа бүртгэхэд хоёулаа 201 буцаадаг (давхардлын шалгалтгүй), мөн courseID нь `constructor` гэх мэт объектын суурь нэр байвал сервер унадаг. Тест бүр өөрийн setup-тай, ялгаатай ID-тай тул дарааллаас үл хамааран, серверийг дахин асаалгүй давтан ажиллуулж болно. Статус болон `result`-ыг хоёуланг нь шалгах шаардлагатай, учир нь бүх `ERROR_*` 200 статустай тул статус дангаараа ялгаж чадахгүй. FAIL ажиллуулалт нь тест буруу хүлээлтийг барьж чаддагийг, exit code 1 нь CI-г зогсоодогийг харуулсан. DOWN ажиллуулалт нь холболтын алдаа гэсэн өөр төрлийн алдаа бөгөөд тэр үед ч Newman exit code 1 буцаадгийг харуулсан. Эквивалент ангиар зохион бүтээвэл арван хүсэлтээр алдааны бүх төрлийг хамарч болдог нь гол сургамж боллоо.
